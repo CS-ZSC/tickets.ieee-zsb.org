@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Container,
@@ -6,46 +8,61 @@ import {
   Text,
 } from "@chakra-ui/react";
 import ScannerLoader from "@/components/ScannerLoader";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { useAuth } from "@/atoms/auth";
+import { toaster } from "@/components/ui/toaster";
 
 export default function ScannerPage() {
+  const router = useRouter();
+  const auth = useAuth();
+  const redirectStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (auth !== null || redirectStartedRef.current) return;
+
+    redirectStartedRef.current = true;
+    const timer = window.setTimeout(() => {
+      toaster.create({
+        type: "warning",
+        title: "Sign in required",
+        description: "You must be signed in to scan tickets.",
+        closable: true,
+      });
+      router.replace("/login");
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [auth, router]);
+
+  function handleDetected(code: string) {
+    router.push(`/verify/${encodeURIComponent(code)}`);
+  }
+
   return (
-    <Box minH="100vh" bg="bg" color="fg">
-      <Container maxW="lg" py={12}>
-        <Stack gap={8}>
-          {/* Page header */}
-          <Stack gap={1} textAlign="center">
-            <Heading size="xl" color="primary-1">
-              QR Code Scanner
-            </Heading>
-            <Text color="neutral-3" fontSize="sm">
-              Point your camera at a ticket QR code to validate it
-            </Text>
-          </Stack>
-
-          {/* Scanner card */}
-          <Box
-            bg="primary-5"
-            borderWidth="1px"
-            borderColor="primary-3"
-            borderRadius="xl"
-            p={6}
-            shadow="md"
-          >
-            <ScannerLoader />
-          </Box>
-
-          {/* Back link */}
-          <Text textAlign="center" fontSize="sm" color="neutral-3">
-            <Link
-              href="/login"
-              style={{ color: "var(--chakra-colors-primary-1)" }}
-            >
-              ← Back to Login
-            </Link>
+    <Container maxW="lg" px={{ base: 4, md: 6 }}>
+      <Stack gap={6}>
+        <Stack gap={2} textAlign="center">
+          <Heading size="xl" color="neutral-1">
+            Scan a ticket
+          </Heading>
+          <Text color="neutral-3" fontSize="sm">
+            Point the camera at the attendee&apos;s QR code.
           </Text>
         </Stack>
-      </Container>
-    </Box>
+
+        <Box
+          bg="primary-5"
+          borderWidth="1px"
+          borderColor="primary-3"
+          backdropFilter="blur(16px)"
+          rounded="2xl"
+          p={{ base: 4, md: 6 }}
+          shadow="lg"
+        >
+          <ScannerLoader onDetected={handleDetected} />
+        </Box>
+      </Stack>
+    </Container>
   );
 }

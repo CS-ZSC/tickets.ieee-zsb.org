@@ -10,109 +10,149 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { LogIn, Mail, Lock } from "lucide-react";
+import { loginUser } from "@/api/auth";
+import { useSetAuth, useAuth } from "@/atoms/auth";
+import { toaster } from "@/components/ui/toaster";
+import { useEffect, useState } from "react";
+import PasswordInput from "@/components/password-input";
+
+type FormValues = {
+  email: string;
+  password: string;
+};
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const setAuth = useSetAuth();
+  const auth = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsLoading(true);
-    // TODO: implement authentication logic
-    setTimeout(() => setIsLoading(false), 1000);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    defaultValues: { email: "", password: "" },
+  });
+
+  useEffect(() => {
+    if (auth) router.replace("/");
+  }, [auth, router]);
+
+  async function onSubmit(values: FormValues) {
+    const res = await loginUser(values);
+    if (!res.success) {
+      toaster.create({
+        type: "error",
+        title: "Login failed",
+        description: res.message,
+        closable: true,
+      });
+      return;
+    }
+    setAuth({ token: res.token, user: res.user });
+    toaster.create({
+      type: "success",
+      title: "Welcome back",
+      description: res.user.name,
+      closable: true,
+    });
+    router.replace("/");
   }
 
   return (
-    <Box minH="100vh" bg="bg" color="fg" display="flex" alignItems="center">
-      <Container maxW="md" py={12}>
-        <Box
-          bg="primary-5"
-          borderWidth="1px"
-          borderColor="primary-3"
-          borderRadius="xl"
-          p={8}
-          shadow="md"
-        >
-          <Stack gap={6}>
-            {/* Header */}
-            <Stack gap={1} textAlign="center">
-              <Heading size="xl" color="primary-1">
-                Welcome Back
-              </Heading>
-              <Text color="neutral-3" fontSize="sm">
-                Sign in to your IEEE Zagazig Student Branch account
-              </Text>
-            </Stack>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit}>
-              <Stack gap={4}>
-                <Field.Root required>
-                  <Field.Label color="fg" fontWeight="medium">
-                    Email
-                  </Field.Label>
-                  <Input
-                    type="email"
-                    placeholder="you@ieee.org"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    borderColor="primary-3"
-                    bg="neutral-5"
-                    color="fg"
-                    _placeholder={{ color: "neutral-3" }}
-                    _focus={{ borderColor: "primary-1", boxShadow: "none" }}
-                  />
-                </Field.Root>
-
-                <Field.Root required>
-                  <Field.Label color="fg" fontWeight="medium">
-                    Password
-                  </Field.Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    borderColor="primary-3"
-                    bg="neutral-5"
-                    color="fg"
-                    _placeholder={{ color: "neutral-3" }}
-                    _focus={{ borderColor: "primary-1", boxShadow: "none" }}
-                  />
-                </Field.Root>
-
-                <Button
-                  type="submit"
-                  bg="primary-1"
-                  color="white"
-                  size="lg"
-                  width="full"
-                  mt={2}
-                  loading={isLoading}
-                  loadingText="Signing in…"
-                  _hover={{ bg: "primary-2" }}
-                >
-                  Sign In
-                </Button>
-              </Stack>
-            </form>
-
-            {/* Footer */}
-            <Text textAlign="center" fontSize="sm" color="neutral-3">
-              Go to{" "}
-              <Link
-                href="/scanner"
-                style={{ color: "var(--chakra-colors-primary-1)" }}
-              >
-                QR Scanner
-              </Link>
+    <Container maxW="md" px={{ base: 4, md: 6 }}>
+      <Box
+        bg="primary-5"
+        borderWidth="1px"
+        borderColor="primary-3"
+        backdropFilter="blur(16px)"
+        rounded="2xl"
+        p={{ base: 6, md: 8 }}
+        shadow="xl"
+      >
+        <Stack gap={6}>
+          <Stack gap={2} textAlign="center">
+            <Heading size="xl" color="neutral-1">
+              Sign in
+            </Heading>
+            <Text color="neutral-3" fontSize="sm">
+              Use your IEEE-ZSB dashboard credentials.
             </Text>
           </Stack>
-        </Box>
-      </Container>
-    </Box>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Stack gap={4}>
+              <Field.Root invalid={!!errors.email}>
+                <Field.Label color="neutral-2" fontWeight="medium">
+                  Email
+                </Field.Label>
+                <Box position="relative" w="full">
+                  <Box
+                    position="absolute"
+                    left={3}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    color="neutral-3"
+                    pointerEvents="none"
+                  >
+                    <Mail size={16} />
+                  </Box>
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    pl={10}
+                    borderColor="primary-3"
+                    bg="primary-12"
+                    color="neutral-1"
+                    _placeholder={{ color: "neutral-3" }}
+                    _focus={{ borderColor: "primary-1" }}
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^\S+@\S+\.\S+$/,
+                        message: "Enter a valid email",
+                      },
+                    })}
+                  />
+                </Box>
+                <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
+              </Field.Root>
+
+
+              <PasswordInput
+                label="Password"
+                placeholder="Enter your password"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: { value: 8, message: "Password must be at least 8 characters" }
+                })}
+                isInvalid={!!errors.password}
+                errorMessage={errors.password?.message}
+              />
+
+              <Button
+                type="submit"
+                bg="primary-1"
+                color="white"
+                size="lg"
+                rounded="xl"
+                loading={isSubmitting}
+                loadingText="Signing in…"
+                _hover={{ bg: "primary-2" }}
+              >
+                <LogIn size={18} />
+                <Box as="span" ml={2}>
+                  Sign in
+                </Box>
+              </Button>
+            </Stack>
+          </form>
+        </Stack>
+      </Box>
+    </Container>
   );
 }
