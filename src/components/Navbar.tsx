@@ -4,11 +4,13 @@ import {
   Avatar,
   Box,
   Button,
+  ClientOnly,
   Flex,
   HStack,
   Heading,
   Menu,
   Portal,
+  Skeleton,
   Text,
 } from "@chakra-ui/react";
 import Logo from "@/components/Logo";
@@ -75,85 +77,88 @@ export default function Navbar() {
         <HStack gap={2}>
           <ColorModeButton />
 
-          {!auth ? (
-            <Button
-              onClick={() => router.push("/login")}
-              bg="primary-1"
-              color="white"
-              rounded="xl"
-              size={{ base: "sm", md: "md" }}
-              px={{ base: 3, md: 5 }}
-              _hover={{ bg: "primary-2" }}
-            >
-              <LogIn size={16} />
-              <Box as="span" ml={2}>
-                Login
-              </Box>
-            </Button>
-          ) : (
-            <Menu.Root>
-              <Menu.Trigger asChild>
-                <Button
-                  variant="ghost"
-                  rounded="xl"
-                  px={2}
-                  _hover={{ bg: "primary-7" }}
-                >
-                  <Avatar.Root size="sm" bg="primary-1" color="white">
-                    <Avatar.Fallback name={auth.user.name} />
-                    {auth.user.avatar_src && (
-                      <Avatar.Image src={auth.user.avatar_src} />
-                    )}
-                  </Avatar.Root>
-                  <Text
-                    ml={2}
-                    color="neutral-1"
-                    display={{ base: "none", md: "inline" }}
-                    fontWeight="medium"
-                  >
-                    {auth.user.name.split(" ")[0]}
-                  </Text>
-                </Button>
-              </Menu.Trigger>
-              <Portal>
-                <Menu.Positioner>
-                  <Menu.Content
-                    bg="primary-5"
-                    borderWidth="1px"
-                    borderColor="primary-3"
-                    backdropFilter="blur(16px)"
+          <ClientOnly fallback={<Skeleton w="80px" h="36px" rounded="xl" />}>
+            {!auth ? (
+              <Button
+                onClick={() => router.push("/login")}
+                bg="primary-1"
+                color="white"
+                rounded="xl"
+                size={{ base: "sm", md: "md" }}
+                px={{ base: 3, md: 5 }}
+                _hover={{ bg: "primary-2" }}
+              >
+                <LogIn size={16} />
+                <Box as="span" ml={2}>
+                  Login
+                </Box>
+              </Button>
+            ) : (
+              <Menu.Root>
+                <Menu.Trigger asChild>
+                  <Button
+                    variant="ghost"
                     rounded="xl"
-                    minW="220px"
-                    p={2}
+                    px={2}
                   >
-                    <Box px={3} py={2}>
-                      <HStack>
-                        <UserRound size={16} />
-                        <Text fontSize="sm" fontWeight="semibold">
-                          {auth.user.name}
-                        </Text>
-                      </HStack>
-                      <Text fontSize="xs" color="neutral-3" mt={1}>
-                        {auth.user.email}
-                      </Text>
-                    </Box>
-                    <Menu.Separator />
-                    <Menu.Item
-                      value="logout"
-                      onClick={handleLogout}
-                      color="danger-1"
-                      _hover={{ bg: "danger-2" }}
+                    <Avatar.Root size="xs" bg="primary-1" color="white">
+                      <Avatar.Fallback name={auth.user.name} />
+                      {auth.user.avatar_src && (
+                        <Avatar.Image src={auth.user.avatar_src} />
+                      )}
+                    </Avatar.Root>
+                    <Text
+                      ml={2}
+                      color="neutral-1"
+                      display={{ base: "none", md: "inline" }}
+                      fontWeight="medium"
                     >
-                      <LogOut size={16} />
-                      <Box as="span" ml={2}>
-                        Sign out
+                      {auth.user.name.split(" ")[0]}
+                    </Text>
+                  </Button>
+                </Menu.Trigger>
+                <Portal>
+                  <Menu.Positioner>
+                    <Menu.Content
+                      bg="primary-5"
+                      borderWidth="1px"
+                      borderColor="primary-3"
+                      backdropFilter="blur(16px)"
+                      rounded="lg"
+                      minW="220px"
+                      p={2}
+                    >
+                      <Box px={3} py={2}>
+                        <HStack>
+                          <UserRound size={16} />
+                          <Text fontSize="sm" fontWeight="semibold">
+                            {auth.user.name}
+                          </Text>
+                        </HStack>
+                        <Text fontSize="xs" color="neutral-3" mt={1}>
+                          {auth.user.email}
+                        </Text>
                       </Box>
-                    </Menu.Item>
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Portal>
-            </Menu.Root>
-          )}
+                      <Menu.Separator />
+                      <Menu.Item
+                        value="logout"
+                        onClick={handleLogout}
+                        color="danger-1"
+                        _hover={{ bg: "danger-2" }}
+                        cursor={"pointer"}
+                        rounded={"sm"}
+                      >
+                        <LogOut size={16} />
+                        <Box as="span" ml={2}>
+                          Sign out
+                        </Box>
+                      </Menu.Item>
+                    </Menu.Content>
+                  </Menu.Positioner>
+                </Portal>
+              </Menu.Root>
+            )}
+          </ClientOnly>
         </HStack>
       </Box>
     </Flex>

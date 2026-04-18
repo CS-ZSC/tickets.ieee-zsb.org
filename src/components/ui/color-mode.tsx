@@ -50,7 +50,8 @@ export const ColorModeButton = React.forwardRef<
         size="sm"
         bgColor="transparent"
         color="neutral-2"
-        _hover={{ color: "primary-1", bg: "primary-7" }}
+        cursor={"pointer"}
+        _hover={{ color: "primary-1" }}
         {...props}
       >
         {colorMode === "dark" ? <Moon size={18} /> : <Sun size={18} />}

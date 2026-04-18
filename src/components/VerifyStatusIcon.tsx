@@ -12,10 +12,6 @@ export default function VerifyStatusIcon({ status }: { status: Status }) {
     return (
       <Box
         as={motion.div}
-        // @ts-expect-error framer motion prop
-        animate={{ rotate: 360 }}
-        // @ts-expect-error framer motion prop
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         w={`${size}px`}
         h={`${size}px`}
         rounded="full"
@@ -30,12 +26,6 @@ export default function VerifyStatusIcon({ status }: { status: Status }) {
     return (
       <Box
         as={motion.div}
-        // @ts-expect-error framer motion prop
-        initial={{ scale: 0 }}
-        // @ts-expect-error framer motion prop
-        animate={{ scale: 1 }}
-        // @ts-expect-error framer motion prop
-        transition={{ type: "spring", stiffness: 260, damping: 18 }}
         w={`${size}px`}
         h={`${size}px`}
         rounded="full"

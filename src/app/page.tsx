@@ -3,25 +3,26 @@
 import {
   Box,
   Button,
+  ClientOnly,
   Container,
   Flex,
   Heading,
+  Skeleton,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { ScanLine, QrCode, Ticket } from "lucide-react";
-import { motion } from "framer-motion";
+import { ScanLine, Ticket } from "lucide-react";
 import { useAuth } from "@/atoms/auth";
-
-const MotionBox = motion(Box);
+import LogoHorse from "@/components/logo-horse";
 
 export default function Home() {
   const auth = useAuth();
 
   return (
-    <Container maxW="lg" px={{ base: 4, md: 6 }}>
-      <Flex direction="column" align="center" textAlign="center" gap={10}>
+    <Container maxW="lg" px={{ base: 4, md: 6 }} flex={1} display="flex" alignItems="center" justifyContent="center">
+      <Flex direction="column" align="center" textAlign="center" gap={{ base: 6, md: 10 }} w="full" py={{ base: 6, md: 10 }}>
+        <LogoHorse type="blue" width={{ base: "300px", md: "450px" }} height={{ base: "300px", md: "450px" }} />
         <Stack gap={3} align="center">
           <Heading
             size={{ base: "2xl", md: "3xl" }}
@@ -36,66 +37,9 @@ export default function Home() {
           </Text>
         </Stack>
 
-        <Box position="relative" display="flex" justifyContent="center">
-          <Box
-            position="absolute"
-            inset={0}
-            rounded="full"
-            bg="primary-1"
-            opacity={0.25}
-            className="pulse-ring"
-          />
-          <Box
-            position="absolute"
-            inset={0}
-            rounded="full"
-            bg="primary-1"
-            opacity={0.2}
-            className="pulse-ring"
-            style={{ animationDelay: "0.8s" }}
-          />
-          <MotionBox
-            w={{ base: "160px", md: "200px" }}
-            h={{ base: "160px", md: "200px" }}
-            rounded="full"
-            bg="primary-1"
-            color="white"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            boxShadow="0 20px 60px -20px rgba(0, 102, 153, 0.7)"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.4 }}
-          >
-            <QrCode size={92} strokeWidth={1.4} />
-          </MotionBox>
-        </Box>
 
-        {auth ? (
-          <Button
-            asChild
-            bg="primary-1"
-            color="white"
-            size="xl"
-            px={10}
-            rounded="xl"
-            fontSize="lg"
-            boxShadow="lg"
-            _hover={{ bg: "primary-2", transform: "translateY(-2px)" }}
-            transition="all 0.2s ease"
-          >
-            <Link href="/scanner">
-              <ScanLine size={20} />
-              <Box as="span" ml={2}>
-                Start scanning
-              </Box>
-            </Link>
-          </Button>
-        ) : (
-          <Stack gap={3} align="center">
+        <ClientOnly fallback={<Skeleton w="160px" h="48px" rounded="xl" />}>
+          {auth ? (
             <Button
               asChild
               bg="primary-1"
@@ -108,18 +52,40 @@ export default function Home() {
               _hover={{ bg: "primary-2", transform: "translateY(-2px)" }}
               transition="all 0.2s ease"
             >
-              <Link href="/login">
-                <Ticket size={20} />
+              <Link href="/scanner">
+                <ScanLine size={20} />
                 <Box as="span" ml={2}>
-                  Sign in to start
+                  Start scanning
                 </Box>
               </Link>
             </Button>
-            <Text color="neutral-3" fontSize="sm">
-              You must be signed in as a gate operator to scan tickets.
-            </Text>
-          </Stack>
-        )}
+          ) : (
+            <Stack gap={3} align="center">
+              <Button
+                asChild
+                bg="primary-1"
+                color="white"
+                size="xl"
+                px={10}
+                rounded="xl"
+                fontSize="lg"
+                boxShadow="lg"
+                _hover={{ bg: "primary-2", transform: "translateY(-2px)" }}
+                transition="all 0.2s ease"
+              >
+                <Link href="/login">
+                  <Ticket size={20} />
+                  <Box as="span" ml={2}>
+                    Sign in to start
+                  </Box>
+                </Link>
+              </Button>
+              <Text color="neutral-3" fontSize="sm">
+                You must be signed in as a gate operator to scan tickets.
+              </Text>
+            </Stack>
+          )}
+        </ClientOnly>
       </Flex>
     </Container>
   );

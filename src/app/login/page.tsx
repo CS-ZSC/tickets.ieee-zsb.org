@@ -17,7 +17,6 @@ import { loginUser } from "@/api/auth";
 import { useSetAuth, useAuth } from "@/atoms/auth";
 import { toaster } from "@/components/ui/toaster";
 import { useEffect, useState } from "react";
-import PasswordInput from "@/components/password-input";
 
 type FormValues = {
   email: string;
@@ -64,8 +63,9 @@ export default function LoginPage() {
   }
 
   return (
-    <Container maxW="md" px={{ base: 4, md: 6 }}>
+    <Container maxW="md" px={{ base: 4, md: 6 }} flex={1} display="flex" alignItems="center" justifyContent="center" py={{ base: 6, md: 10 }}>
       <Box
+        w="full"
         bg="primary-5"
         borderWidth="1px"
         borderColor="primary-3"
@@ -122,17 +122,53 @@ export default function LoginPage() {
                 <Field.ErrorText>{errors.email?.message}</Field.ErrorText>
               </Field.Root>
 
-
-              <PasswordInput
-                label="Password"
-                placeholder="Enter your password"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: { value: 8, message: "Password must be at least 8 characters" }
-                })}
-                isInvalid={!!errors.password}
-                errorMessage={errors.password?.message}
-              />
+              <Field.Root invalid={!!errors.password}>
+                <Field.Label color="neutral-2" fontWeight="medium">
+                  Password
+                </Field.Label>
+                <Box position="relative" w="full">
+                  <Box
+                    position="absolute"
+                    left={3}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    color="neutral-3"
+                    pointerEvents="none"
+                  >
+                    <Lock size={16} />
+                  </Box>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="strongpassword"
+                    pl={10}
+                    pr={16}
+                    borderColor="primary-3"
+                    bg="primary-12"
+                    color="neutral-1"
+                    _placeholder={{ color: "neutral-3" }}
+                    _focus={{ borderColor: "primary-1" }}
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: { value: 6, message: "Too short" },
+                    })}
+                  />
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="ghost"
+                    position="absolute"
+                    right={2}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    color="neutral-3"
+                    _hover={{ color: "primary-1", bg: "transparent" }}
+                    onClick={() => setShowPassword((v) => !v)}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </Button>
+                </Box>
+                <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
+              </Field.Root>
 
               <Button
                 type="submit"

@@ -157,11 +157,8 @@ export default function VerifyPage() {
         {state.stage === "verified" && (
           <MotionStack
             gap={4}
-            // @ts-expect-error framer motion prop
             initial={{ opacity: 0, y: 16 }}
-            // @ts-expect-error framer motion prop
             animate={{ opacity: 1, y: 0 }}
-            // @ts-expect-error framer motion prop
             transition={{ duration: 0.35, delay: 0.1 }}
           >
             <Box

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import Navbar from "@/components/Navbar";
-import { Box } from "@chakra-ui/react";
+import Footer from "@/components/Footer";
+import { Box, Stack } from "@chakra-ui/react";
+import { Toaster } from "@/components/ui/toaster";
+import { Provider } from "@/components/ui/provider";
 
 export const metadata: Metadata = {
   title: "IEEE-ZSB Tickets",
@@ -12,18 +15,30 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+      {/* Added suppressHydrationWarning here to protect against browser extensions */}
       <body suppressHydrationWarning>
-        <Providers>
-          <Box minH="100dvh" bg="bg" color="fg">
+        <Provider>
+          <Stack
+            gap={0}
+            margin={"auto"}
+            maxWidth={"3040px"}
+            minHeight={"100dvh"}
+            padding={"var(--global-spacing)"}
+            color={"natural-2"}
+          >
             <Navbar />
-            <Box as="main" pt={{ base: "96px", md: "110px" }} pb={16}>
+            <Box flex={1} display="flex" flexDirection="column">
               {children}
             </Box>
-          </Box>
-        </Providers>
+            <Footer />
+          </Stack>
+          <Toaster />
+        </Provider>
       </body>
     </html>
   );
