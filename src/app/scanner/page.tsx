@@ -40,8 +40,8 @@ export default function ScannerPage() {
   }
 
   return (
-    <Container maxW="lg" px={{ base: 4, md: 6 }}>
-      <Stack gap={6}>
+    <Container maxW="lg" px={{ base: 4, md: 6 }} flex={1} display="flex" alignItems="center" justifyContent="center" py={{ base: 6, md: 10 }}>
+      <Stack gap={6} w="full">
         <Stack gap={2} textAlign="center">
           <Heading size="xl" color="neutral-1">
             Scan a ticket

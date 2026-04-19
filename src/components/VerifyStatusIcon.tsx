@@ -3,7 +3,7 @@
 import { Box } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 
-type Status = "loading" | "success" | "error";
+type Status = "loading" | "success" | "checked_in" | "error";
 
 const size = 96;
 
@@ -44,6 +44,45 @@ export default function VerifyStatusIcon({ status }: { status: Status }) {
         >
           <path
             d="M14 27 L23 36 L39 18"
+            stroke="currentColor"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Box>
+    );
+  }
+
+  if (status === "checked_in") {
+    return (
+      <Box
+        as={motion.div}
+        w={`${size}px`}
+        h={`${size}px`}
+        rounded="full"
+        bg="primary-7"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        color="primary-1"
+      >
+        <svg
+          className="draw-check"
+          width="52"
+          height="52"
+          viewBox="0 0 52 52"
+          fill="none"
+        >
+          <path
+            d="M8 27 L17 36 L33 18"
+            stroke="currentColor"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M20 27 L29 36 L45 18"
             stroke="currentColor"
             strokeWidth="5"
             strokeLinecap="round"

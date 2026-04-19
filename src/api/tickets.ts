@@ -36,6 +36,14 @@ export interface VerifyFailure {
   status?: number;
 }
 
+export interface VerifyCheckedIn {
+  success: false;
+  stage: "checked_in";
+  message: string;
+}
+
+export type VerifyResult = VerifySuccess | VerifyCheckedIn | VerifyFailure;
+
 function extractMessage(error: unknown, fallback: string): string {
   if (!axios.isAxiosError(error)) return fallback;
   const data = error.response?.data;
@@ -46,29 +54,23 @@ function extractMessage(error: unknown, fallback: string): string {
   return data?.message || fallback;
 }
 
-export async function verifyTicket(
-  qrCode: string,
-): Promise<VerifySuccess | VerifyFailure> {
+export async function verifyTicket(qrCode: string): Promise<VerifyResult> {
   try {
     const res = await api.post("/eventsgate/tickets/verify", {
       qr_code: qrCode,
     });
     const d = res.data?.data;
     if (!d?.user || !d?.event) {
-      return {
-        success: false,
-        message: res.data?.message || "Invalid ticket.",
-      };
+      if (d?.ticket_status === "checked_in") {
+        return { success: false, stage: "checked_in", message: res.data?.message || "Already checked in." };
+      }
+      return { success: false, message: res.data?.message || "Invalid ticket." };
     }
     return {
       success: true,
       message: res.data?.message || "Ticket verified",
       data: {
-        user: {
-          id: d.user.id,
-          name: d.user.name,
-          email: d.user.email,
-        },
+        user: { id: d.user.id, name: d.user.name, email: d.user.email },
         event: {
           id: d.event.id,
           name: d.event.name,
@@ -83,14 +85,14 @@ export async function verifyTicket(
       },
     };
   } catch (error) {
-    const status = axios.isAxiosError(error)
-      ? error.response?.status
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    const ticketStatus = axios.isAxiosError(error)
+      ? error.response?.data?.data?.ticket_status
       : undefined;
-    return {
-      success: false,
-      status,
-      message: extractMessage(error, "Ticket could not be verified."),
-    };
+    if (ticketStatus === "checked_in") {
+      return { success: false, stage: "checked_in", message: extractMessage(error, "Already checked in.") };
+    }
+    return { success: false, status, message: extractMessage(error, "Ticket could not be verified.") };
   }
 }
 

@@ -35,9 +35,10 @@ import { motion } from "framer-motion";
 type State =
   | { stage: "loading" }
   | { stage: "verified"; data: VerifiedTicket }
+  | { stage: "checked_in" }
   | { stage: "invalid"; message: string };
 
-const MotionStack = motion(Stack);
+const MotionStack = motion.create(Stack);
 
 function formatDate(iso: string) {
   try {
@@ -72,6 +73,9 @@ export default function VerifyPage() {
     if (res.success) {
       playVerified();
       setState({ stage: "verified", data: res.data });
+    } else if ("stage" in res && res.stage === "checked_in") {
+      playVerified();
+      setState({ stage: "checked_in" });
     } else {
       playUnverified();
       setState({ stage: "invalid", message: res.message });
@@ -110,8 +114,8 @@ export default function VerifyPage() {
   }
 
   return (
-    <Container maxW="lg" px={{ base: 4, md: 6 }}>
-      <Stack gap={6}>
+    <Container maxW="lg" px={{ base: 4, md: 6 }} flex={1} display="flex" alignItems="center" justifyContent="center" py={{ base: 6, md: 10 }}>
+      <Stack gap={6} w="full">
         <Flex direction="column" align="center" gap={4}>
           <VerifyStatusIcon
             status={
@@ -119,7 +123,9 @@ export default function VerifyPage() {
                 ? "loading"
                 : state.stage === "verified"
                   ? "success"
-                  : "error"
+                  : state.stage === "checked_in"
+                    ? "checked_in"
+                    : "error"
             }
           />
 
@@ -138,6 +144,16 @@ export default function VerifyPage() {
                   {state.data.ticket_status === "verified"
                     ? "Ready to check in."
                     : state.data.ticket_status}
+                </Text>
+              </>
+            )}
+            {state.stage === "checked_in" && (
+              <>
+                <Heading size="xl" color="primary-1">
+                  Already checked in
+                </Heading>
+                <Text color="neutral-3" fontSize="sm">
+                  This attendee has already been checked in.
                 </Text>
               </>
             )}
